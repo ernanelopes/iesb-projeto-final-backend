@@ -2,7 +2,11 @@ const jwt = require('jsonwebtoken')
 const config = require('./config')
 
 module.exports = (req,res,next) => {
-  const token = req.body.token || req.query.token || req.headers['x-access-token']
+
+  let token = req.headers['x-access-token'] || req.headers['authorization'];
+  if (token && token.startsWith('Bearer ')) {
+    token = token.slice(7, token.length);
+  }
 
   if (token) {
     // Verificação da Expiracao do Token
