@@ -23,14 +23,13 @@ router.post('/login', (req,res) => {
     const postData = req.body;
     const user = {
         "email": postData.email,
-        "name": postData.name,
-        "secret": postData.secret
+        "name": postData.name
     }
 
     // Criação do token basico
-    const token = jwt.sign(user, user.secret, { expiresIn: config.tokenLife})
+    const token = jwt.sign(user, config.secret, { expiresIn: config.tokenLife})
 
-    // Criação do token de refresh
+    // Persistencia do token
     const refreshToken = jwt.sign(user, config.refreshTokenSecret, { expiresIn: config.refreshTokenLife})
 
     const response = {
