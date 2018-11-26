@@ -17,16 +17,16 @@ const tokenList = {}
 // Instancia do Express
 const app = express()
 
-app.use(bodyParser.urlencoded({extended: true}))
+app.use(bodyParser.urlencoded({ extended: true }))
 app.use(bodyParser.json())
 
 const tarefas = [];
 
-router.get('/', (req,res) => {
+router.get('/', (req, res) => {
     res.send('Home Page');
 })
 
-router.post('/login', (req,res) => {
+router.post('/login', (req, res) => {
     const postData = req.body;
     const user = {
         "email": postData.email,
@@ -34,10 +34,10 @@ router.post('/login', (req,res) => {
     }
 
     // Criação do token basico
-    const token = jwt.sign(user, config.secret, { expiresIn: config.tokenLife})
+    const token = jwt.sign(user, config.secret, { expiresIn: config.tokenLife })
 
     // Persistencia do token
-    const refreshToken = jwt.sign(user, config.refreshTokenSecret, { expiresIn: config.refreshTokenLife})
+    const refreshToken = jwt.sign(user, config.refreshTokenSecret, { expiresIn: config.refreshTokenLife })
 
     const response = {
         "status": "Login com Sucesso",
@@ -51,23 +51,23 @@ router.post('/login', (req,res) => {
     res.status(200).json(response);
 })
 
-router.post('/token', (req,res) => {
+router.post('/token', (req, res) => {
 
     const postData = req.body
-    
-    if((postData.refreshToken) && (postData.refreshToken in tokenList)) {
+
+    if ((postData.refreshToken) && (postData.refreshToken in tokenList)) {
         const user = {
             "email": postData.email,
             "name": postData.name
         }
-        const token = jwt.sign(user, config.secret, { expiresIn: config.tokenLife})
+        const token = jwt.sign(user, config.secret, { expiresIn: config.tokenLife })
         const response = {
-            token : token,
+            token: token,
         }
-        
+
         // Atualizando Token
         tokenList[postData.refreshToken].token = token
-        res.status(200).json(response);        
+        res.status(200).json(response);
     } else {
         res.status(404).send('Not Found')
     }
@@ -75,7 +75,7 @@ router.post('/token', (req,res) => {
 
 router.use(require('./check-token'))
 
-router.get('/secure', (req,res) => {
+router.get('/secure', (req, res) => {
     res.send('Ok')
 })
 
@@ -88,10 +88,10 @@ router.get("/teste", (rep, resp) => {
 router.post("/tarefa", (req, resp) => {
     const tarefa = {
         id: _.random(0, 1000),
-        titulo : req.body.titulo,
-        descricao : req.body.descricao,
+        titulo: req.body.titulo,
+        descricao: req.body.descricao,
         prioritaria: req.body.prioritaria,
-        terminada : req.body.prioritaria
+        terminada: req.body.prioritaria
     }
     tarefas.push(tarefa);
     resp.status(204);
@@ -107,16 +107,16 @@ router.get("/tarefa", (req, resp) => {
 router.get("/tarefa/:id", (req, resp) => {
     const id = req.params.id;
 
-    if(!id){
+    if (!id) {
         resp.status(204);
         resp.send();
     }
 
     const result = tarefas.find(a => a.id == id);
-    
-    if(result){
+
+    if (result) {
         resp.send(result);
-    }else{
+    } else {
         resp.status(204);
         resp.send();
     }
@@ -126,18 +126,18 @@ router.get("/tarefa/:id", (req, resp) => {
 router.delete("/tarefa/:id", (req, resp) => {
     const id = req.params.id;
     const id2 = req.query.id;
-   
-    if(!id){
+
+    if (!id) {
         resp.status(503);
         resp.send();
-    }  
+    }
 
     const result = tarefas.find(a => a.id == id);
-    
-    if(result){
+
+    if (result) {
         tarefas.splice(tarefas.indexOf(a => a.id == id))
         resp.send();
-    }else{
+    } else {
         resp.status(204);
         resp.send();
     }
@@ -147,20 +147,20 @@ router.delete("/tarefa/:id", (req, resp) => {
 router.put("/tarefa", (req, resp) => {
     const result = tarefas.find(a => a.id == req.body.id);
 
-    if(result){  
+    if (result) {
         const tarefa = {
-            id: result.id, 
-            titulo : req.body.titulo,
-            descricao : req.body.descricao,
+            id: result.id,
+            titulo: req.body.titulo,
+            descricao: req.body.descricao,
             prioritaria: req.body.prioritaria,
-            terminada : req.body.prioritaria
+            terminada: req.body.prioritaria
         }
 
-        tarefas.splice(tarefas.indexOf(a => a.id == id))
+        tarefas.splice(tarefas.indexOf(result), 1)
         tarefas.push(tarefa);
 
         resp.send();
-    }else{
+    } else {
         resp.status(404);
         resp.send();
     }
